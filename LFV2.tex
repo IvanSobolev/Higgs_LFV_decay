@@ -1,0 +1,891 @@
+\documentclass[10pt]{article}
+\usepackage[pdftex]{graphicx}
+\usepackage{chngcntr}
+\usepackage{ucs}
+\usepackage[utf8]{inputenc} % Включаем поддержку UTF8
+\usepackage{amsmath}
+\usepackage{wrapfig}
+\usepackage[colorlinks]{hyperref,xcolor}
+\hypersetup{
+	colorlinks = false,
+    linkbordercolor = white
+}
+\usepackage{parskip}
+\usepackage{array}
+\setlength{\parindent}{15pt}
+\usepackage{amsfonts}
+\usepackage{feynmp-auto}
+\usepackage[english]{babel} % Включаем пакет для поддержки русского языка.
+\usepackage[left=1.5cm,right=1.5cm,
+    top=2cm,bottom=2cm,bindingoffset=0cm]{geometry}
+\addtolength{\topmargin}{-\headheight}
+\addtolength{\topmargin}{-\headsep}
+\thispagestyle{empty}
+\binoppenalty=10000
+\relpenalty=10000
+
+\setcounter{secnumdepth}{1}
+\setcounter{equation}{0}
+
+\makeatletter
+\setlength{\@fptop}{0pt}
+\makeatother
+
+\makeatletter
+\let\save@mathaccent\mathaccent
+\newcommand*\if@single[3]{%
+  \setbox0\hbox{${\mathaccent"0362{#1}}^H$}%
+  \setbox2\hbox{${\mathaccent"0362{\kern0pt#1}}^H$}%
+  \ifdim\ht0=\ht2 #3\else #2\fi
+  }
+%The bar will be moved to the right by a half of \macc@kerna, which is computed by amsmath:
+\newcommand*\rel@kern[1]{\kern#1\dimexpr\macc@kerna}
+%If there's a superscript following the bar, then no negative kern may follow the bar;
+%an additional {} makes sure that the superscript is high enough in this case:
+\newcommand*\widebar[1]{\@ifnextchar^{{\wide@bar{#1}{0}}}{\wide@bar{#1}{1}}}
+%Use a separate algorithm for single symbols:
+\newcommand*\wide@bar[2]{\if@single{#1}{\wide@bar@{#1}{#2}{1}}{\wide@bar@{#1}{#2}{2}}}
+\newcommand*\wide@bar@[3]{%
+  \begingroup
+  \def\mathaccent##1##2{%
+%Enable nesting of accents:
+    \let\mathaccent\save@mathaccent
+%If there's more than a single symbol, use the first character instead (see below):
+    \if#32 \let\macc@nucleus\first@char \fi
+%Determine the italic correction:
+    \setbox\z@\hbox{$\macc@style{\macc@nucleus}_{}$}%
+    \setbox\tw@\hbox{$\macc@style{\macc@nucleus}{}_{}$}%
+    \dimen@\wd\tw@
+    \advance\dimen@-\wd\z@
+%Now \dimen@ is the italic correction of the symbol.
+    \divide\dimen@ 3
+    \@tempdima\wd\tw@
+    \advance\@tempdima-\scriptspace
+%Now \@tempdima is the width of the symbol.
+    \divide\@tempdima 10
+    \advance\dimen@-\@tempdima
+%Now \dimen@ = (italic correction / 3) - (Breite / 10)
+    \ifdim\dimen@>\z@ \dimen@0pt\fi
+%The bar will be shortened in the case \dimen@<0 !
+    \rel@kern{0.6}\kern-\dimen@
+    \if#31
+      \overline{\rel@kern{-0.6}\kern\dimen@\macc@nucleus\rel@kern{0.4}\kern\dimen@}%
+      \advance\dimen@0.4\dimexpr\macc@kerna
+%Place the combined final kern (-\dimen@) if it is >0 or if a superscript follows:
+      \let\final@kern#2%
+      \ifdim\dimen@<\z@ \let\final@kern1\fi
+      \if\final@kern1 \kern-\dimen@\fi
+    \else
+      \overline{\rel@kern{-0.6}\kern\dimen@#1}%
+    \fi
+  }%
+  \macc@depth\@ne
+  \let\math@bgroup\@empty \let\math@egroup\macc@set@skewchar
+  \mathsurround\z@ \frozen@everymath{\mathgroup\macc@group\relax}%
+  \macc@set@skewchar\relax
+  \let\mathaccentV\macc@nested@a
+%The following initialises \macc@kerna and calls \mathaccent:
+  \if#31
+    \macc@nested@a\relax111{#1}%
+  \else
+%If the argument consists of more than one symbol, and if the first token is
+%a letter, use that letter for the computations:
+    \def\gobble@till@marker##1\endmarker{}%
+    \futurelet\first@char\gobble@till@marker#1\endmarker
+    \ifcat\noexpand\first@char A\else
+      \def\first@char{}%
+    \fi
+    \macc@nested@a\relax111{\first@char}%
+  \fi
+  \endgroup
+}
+
+\newcolumntype{M}[1]{>{\centering\arraybackslash}m{#1}}
+\newcolumntype{N}{@{}m{0pt}@{}}
+
+\begin{document}
+\subsection{Model description. Higgs-sgoldstino mixing.}
+We work in a framework of the same model as in \cite{DemAst}. Let us recall briefly the main features of it that are interesting for the purposes of our research. In addition to SM fields and their superpartners as in conventional MSSM model we introduce goldstino chiral superfield $\Phi = \phi + \sqrt{2} \theta \widetilde{G} + F_{\phi} \theta^2$. Due to some dynamics in the hidden sector, auxillary field $F_{\phi}$ acquires vacuum expectation value and breaks SUSY spontaneously. We use the following lagrangian
+\begin{equation}
+\label{Lagr1}
+\mathcal{L}_{\text{model}} = \mathcal{L}_{\text{K{\"a}hler}} + \mathcal{L}_{\text{superpotential}}
+\end{equation}
+We restrict ourselves with a simplest set of operators which reproduce soft SUSY-breaking parameters after spontaneous sypersymmetry breaking. The contribution of K{\"a}hler potential has the form
+\begin{equation}
+\label{Kahler}
+\mathcal{L}_{\text{K{\"a}hler}} = \int \, d^2 \theta \, d^2 \widebar{\theta} \, \sum_{k} \left (1- \frac{m_k^2}{F^2}\Phi^{\dagger} \Phi \right) \Phi^{\dagger}_k e^{g_1 V_1+g_2 V_2+g_3 V_3} \Phi_k
+\end{equation}
+The contribution of superpotential is 
+\begin{eqnarray}
+\label{Superpotential}
+\begin{aligned}
+\mathcal{L}_{\text{superpotential}} = & \int \, d^2 \theta \, \Biggl \{ \epsilon_{ij} \Biggl( \left( \mu - \frac{B}{F} H_{d}^{i} H_{u}^{j}\right) + \left(Y_{ab}^{L}+\frac{A_{ab}^{L}}{F} \Phi \right) L_{a}^{j} E_{b}^{c} H_{d}^{i} + \\
+& + \left(Y_{ab}^{D}+\frac{A_{ab}^{D}}{F} \Phi \right) Q_{a}^{j} D_{b}^{c} H_{d}^{i} + \left(Y_{ab}^{U}+\frac{A_{ab}^{U}}{F} \Phi \right) Q_{a}^{i} U_{b}^{c} H_{d}^{j} \Biggr) + \\
+& + \frac{1}{4} \sum_{\alpha} \left(1+\frac{2M_{\alpha}}{F}\Phi \right) \text{Tr} \, W^{\alpha} W^{\alpha} \Biggr \} + \text{h.c.}
+\end{aligned}
+\end{eqnarray}
+Lagrangian of hidden sector can be written as
+\begin{equation}
+\label{SuperpF}
+\mathcal{L}_{\Phi} = \int \, d^2 \theta \, d^2 \widebar{\theta} \left( \Phi^{\dagger}\Phi + \widetilde{K} (\Phi^{\dagger},\Phi)\right) - \left( \int d^2 \theta F \Phi + \text{h.c.} \right),
+\end{equation}
+where the first term is a standard term for chiral superfields and the second one, $ \widetilde{K} (\Phi^{\dagger},\Phi)$ represents some complicated dynamics in hidden sector and suppressed by powers of $F$. The linear term in (\ref{SuperpF}) allows auxiliary field $F_{\phi}$ to acquire vacuum expectation value $\langle F_{\phi} \rangle = F + \mathcal{O} \left(\frac{1}{F}\right)$ and hence triggers spontaneous supersymmetry breaking. In what follows we assume that all the parameters of lagrangian (\ref{Lagr1}) -- (\ref{SuperpF}) are real and hence ignore possible CP-violation. Higgs CP- and flavour-violating decays can lead to interesting phenomenology which was discussed in \cite{Kopp}.
+
+\noindent
+After integrating out auxillary fields of sgoldstino, Higgs chiral superfields and auxillary fields of vector superfields containing SM gauge boson one obtains potential of the model
+\begin{equation}
+\label{modelV}
+V_{\text{model}} = V_{\text{MSSM}} + V_{\text{mixing}} + V_{\phi^2 H^2}
+\end{equation}
+where $V_{\text{MSSM}}$ is a standard MSSM potential \cite{Martin}
+\begin{eqnarray}
+\label{MSSMV}
+\begin{aligned}
+V_{\text{MSSM}} = & \left(\vert \mu \vert^2 + m_{H_u}^2 \right) \left( \vert H_{u}^{0} \vert^2 + \vert H_{u}^{+} \vert^2 \right) + \left(\vert \mu \vert^2 + m_{H_d}^2 \right) \left( \vert H_{d}^{0} \vert^2 + \vert H_{d}^{+} \vert^2 \right) + \\
+& + \left (B \left( H_{u}^{+} H_{d}^{-} - H_{u}^{0} H_{d}^{0} \right) + \text{c.c.} \right) + \\
+& + \frac{g_1^2+g_2^2}{8} \left (\vert H_{u}^{0} \vert^2 + \vert H_{u}^{+} \vert^2 - \vert H_{d}^{0} \vert^2 - \vert H_{d}^{+} \vert^2 \right)^2 + \frac{g_1^2}{2} \left \vert H_{u}^{+} H_{d}^{0*}+H_{u}^{0} H_{d}^{-*} \right \vert^2
+\end{aligned}
+\end{eqnarray}
+and $V_{\text{mixing}}$ is a part of potential responsible for Higgs-sgoldstino mixing
+\begin{eqnarray}
+\label{mixingV}
+\begin{aligned}
+V_{\text{mixing}} = & \frac{\phi}{F} \Bigl( \mu \, \left( m_{H_u}^2 + m_{H_d}^2 \right) \left(H_{u}^{0} H_{d}^{0}\right)^* - \frac{g_1^2 M_1+g_2^2 M_2}{8} \left( \vert H_{u}^{0} \vert^2-\vert H_{d}^{0} \vert^2 \right)^2 -  \\
+& - B \mu \left( \vert H_{u}^{0} \vert^2 + \vert H_{d}^{0} \vert^2 \right) \Bigr) + \text{h.c.}
+\end{aligned} 
+\end{eqnarray}
+The last term $V_{\phi^2 H^2}$ is responsible for interaction between Higgs and sgoldstino and is suppressed as $1/F^2$. We are not interested in this part of potential in current research. 
+
+\noindent
+Next, we assume that sgoldstino field $\phi$ obtain no vacuum expectation value (it is a singlet with respect to the SM gauge group and hence in principle it can acquire vev). It was shown in \cite{DemAst} that the third derivatives of sgoldstino K{\"a}hler potential can be adjusted in such a way that $\langle \phi \rangle = 0$. Also we work in decoupling limit, i.e. $m_A \gg m_h$, or, equivalently $\cos \, \alpha = \sin \, \beta, \, \sin \, \alpha = - \cos \, \beta$. 
+
+\noindent
+After making these assumptions we expand Higgs and sgoldstino fields around their electroweak minima
+\begin{eqnarray}
+\label{fields}
+\begin{aligned}
+& H_{u}^{0} = v_{u} + \frac{1}{\sqrt{2}} \left(h \, \cos \alpha + H \, \sin \alpha \right) + \frac{\dot{\imath}}{\sqrt{2}} A \, \cos \beta \\ 
+& H_{d}^{0} = v_{d} + \frac{1}{\sqrt{2}} \left(-h \, \sin \alpha + H \, \cos \alpha \right) + \frac{\dot{\imath}}{\sqrt{2}} A \, \sin \beta \\ 
+& \phi = \frac{1}{\sqrt{2}} \left(s + \dot{\imath} p \right)
+\end{aligned}
+\end{eqnarray}
+Substituting (\ref{fields}) into (\ref{mixingV}) and holding only quadratic terms one gets the following mass matrix in scalar sector
+\begin{equation}
+\label{massmatrix}
+\mathcal{M}_s^2 = 
+\left(\begin{matrix}
+m_H^2 & 0 & \frac{Y}{F} \\ 0 & m_h^2 & \frac{X}{F} \\ 
+\frac{Y}{F} & \frac{X}{F} & m_s^2 
+\end{matrix} \right)
+\end{equation}
+where off-diagonal terms are
+\begin{eqnarray}
+\begin{aligned}
+& X = 2 \mu^3 \, v \, \sin \, 2 \beta + \frac{v^3}{2} (g_1^2 \, M_1 + g_2^2 \, M_2) \cos^2 \, 2\beta \\
+& Y = \mu \, v \, (m_A^2-2\mu^2) + \frac{1}{4} \left(g_1^2 M_1 + g_2^2 M_2\right) \, \sin 4\beta
+\end{aligned}
+\end{eqnarray}
+Hence we work in decoupling limit all the Higgs bosons except for the lightest one are heavy and corresponding mass states can be approximated by a following linear combination.
+\begin{equation}
+\label{mixing1}
+\left( \begin{matrix}
+\tilde{h} \\ \tilde{s}
+\end{matrix} \right) = 
+\left( \begin{matrix}
+\cos \, \theta & -\sin \, \theta \\
+\sin \, \theta & \cos \, \theta
+\end{matrix} \right) 
+\left( \begin{matrix}
+h \\ s
+\end{matrix} \right)
+\end{equation} 
+The mixing angle can be obtained from the following equation
+The mixing can be obtained from the following equation
+\begin{equation}
+\label{mixing2}
+\tan 2\theta = \frac{2X}{F(m_s^2-m_h^2)}
+\end{equation}
+\subsection{Modified Higgs sector. LFV decays of Higgs boson}
+After the EWSB the part of Lagrangian which is important for our purposes is
+\begin{eqnarray}
+\label{no8}
+\begin{aligned}
+& \mathcal{L} \supset Y^{L}_{ab} \, \bar{e}'_b \, l'_a \Bigl(1+\frac{h}{\sqrt{2}v}\Bigr) - \frac{A^L_{ab}}{\sqrt{2}F} \bar{e}'_b \, l'_a \, v_d \, s + h.c. \supset \\ 
+& \supset (v_d \, \bar{l}_R^{'} \, Y^L \, l_L^{'} + h.c.) + \Bigl(v_d \, \bar{l}_R^{'} \Bigl(\frac{Y^L}{\sqrt{2}v} \cos \theta + \frac{A^L}{\sqrt{2}F} \sin \theta \Bigr) l_L^{'} \tilde{h} + h.c. \Bigr),
+\end{aligned}
+\end{eqnarray}
+where 
+\[
+l' = \left( \begin{matrix} l_1^{'} \\ l_2^{'} \\ l_3^{'} \end{matrix} \right)
+\]
+Let us consider $Y^L$ of the most general form. Using double unitary transformation we diagonalize it and obtain mass basis. \footnote{In lepton sector mass basis coincides with flavour basis}
+\[
+V_L \, l_L' = l_L \quad \bar{l}_R = \bar{l}_R^{'} \, V^{\dagger}_R
+\]
+\begin{equation}
+\label{no9}
+\mathcal{L} \supset -m_a \, \bar{l}^a \, l^a-\tilde{h}(\bar{l}_L^a \, l_R^b \, \tilde{Y}_{ab} + h.c), 
+\end{equation}
+where \footnote{We will denote $\tilde{A}_{ab} = (V_L \, A^L \, V_R^{\dagger})_{ab}$}
+\begin{equation}
+\label{no10}
+\tilde{Y}_{ab} = \frac{m_a \, \delta_{ab} \, \cos \theta}{\sqrt{2}v} - \frac{v_d (V_L (A^L)^{\dagger} V_R^{\dagger})_{ab} \, \sin \theta}{\sqrt{2}F}
+\end{equation}
+We see the that for $a \neq b$ $\tilde{Y}_{ab} \neq 0$ and hence LVF decays of Higgs boson arise on a tree level. It is easy to calculate the width of such a decay ($a \neq b$)
+\begin{equation}
+\label{no11}
+\Gamma(\tilde{h} \rightarrow \bar{l}_b \, l_a) = \Gamma(\tilde{h} \rightarrow \bar{l}_a \, l_b) = \frac{\tilde{m}_h}{16\pi} (\vert \tilde{Y}_{ab}\vert^2+\vert \tilde{Y}_{ba} \vert^2)
+\end{equation}
+and using the same notations as in \cite{Harnik,CMS_LFV}
+\begin{equation}
+\label{no12}
+\Gamma(\tilde{h} \rightarrow l_a \, l_b) = \Gamma(\tilde{h} \rightarrow \bar{l}_b \, l_a) + \Gamma(\tilde{h} \rightarrow \bar{l}_a \, l_b) = \frac{\tilde{m}_h}{8\pi} (\vert \tilde{Y}_{ab}\vert^2+\vert \tilde{Y}_{ba} \vert^2)
+\end{equation}
+Sometimes in what follows we will not put a tilde symbol over soft parameters $A_{ab}$ and off-diagonal Yukawa couplings if it doesn't lead to confusion.
+\subsection{Constraints}
+\subsubsection{Modified Higgs signals.}
+\noindent
+In this section we analyse the impact of Higgs-sgoldstino mixing on signal strengths
+\begin{equation}
+\label{signal}
+\mu_f = \frac{\sigma(pp \rightarrow \tilde{h}) \times \text{BR}(\tilde{h} \rightarrow f)}{\sigma(pp \rightarrow h^{SM}) \times \text{BR}(h^{SM} \rightarrow f)},
+\end{equation}
+where the final state $f$ stands for $\bar{b} \, b$, $W^+ \, W^-$, $ZZ$, $\gamma \, \gamma$, $\bar{\tau} \, \tau$. 
+Since now the mass state $\tilde{h}$ is a mixture of lightest MSSM Higgs boson $h$ and sgoldstino $s$, its decay rates to SM gauge bosons and fermions will be modified with respect to the SM Higgs boson. An effective lagrangian for Higgs boson in SM model is
+\begin{equation}
+\label{no22}
+\mathcal{L}_{h}^{eff} = \frac{\sqrt{2} m_W^2}{v} \, h W_{\mu}^+ W^{\mu -} + \frac{\sqrt{2} m_Z^2}{2v} \, h Z_{\mu} Z^{\mu} - \frac{m_b}{\sqrt{2}v} \, h \bar{b} b + g_{h \gamma \gamma} \, h F_{\mu \nu} F^{\mu \nu} + g_{hgg} h \, \text{tr} \, G_{\mu \nu} G^{\mu \nu},
+\end{equation}
+where $g_{h \gamma \gamma}$ and $g_{hgg}$ are loop factors.
+An interaction between sgoldstino and SM gauge bosons and fermions appear already at the tree level
+\begin{equation}
+\label{no23}
+\mathcal{L}_{s}^{eff} = 	-\frac{M_2}{\sqrt{2}F} \, s \, W_{\mu \nu} W^{\mu \nu *} -\frac{M_{ZZ}}{2\sqrt{2}F} \, s \, Z_{\mu \nu} Z^{\mu \nu} - \frac{M_{\gamma \gamma}}{2\sqrt{2}}  \, s \, F_{\mu \nu} F^{\mu \nu} - \frac{M_3}{2\sqrt{2}F} \, s \, \text{tr} \, G_{\mu \nu} G^{\mu \nu} - \frac{A_{bb} \, v_d}{\sqrt{2}F} s \bar{b} b,
+\end{equation}
+where
+\begin{eqnarray}
+\label{no24}
+\begin{aligned}
+& M_{ZZ} = M_1 \, \sin^2 \theta_W + M_2 \, \cos^2 \theta_W \\
+& M_{\gamma \gamma} = M_1 \, \cos^2 \theta_W + M_2 \, \sin^2 \theta_W
+\end{aligned}
+\end{eqnarray}
+We start from the most complicated case -- $\tilde{h}$ decaying into W and Z. Since the latter are not stable themselves we also take into account their subsequent decay into leptons. The increasing complexity of formulas in comparison with the Standard Model arises from the fact that Higgs and sgoldstino couple to vector bosons differently,
+namely:
+\begin{equation}
+\label{tildehVV}
+g_{\tilde{h}VV}^{\mu \nu} = g_{hVV}^{\mu \nu} \cos \theta + \frac{M_{VV}}{\sqrt{2}F}((k_{V_1},k_{V_2})\eta^{\mu \nu}-k^{V_1 \mu} k^{V_2 \nu}) \sin  \theta,
+\end{equation}
+where
+\begin{equation}
+\label{hVV}
+g_{hVV}^{\mu \nu} = \frac{2 m_V^2}{v} \eta^{\mu \nu}
+\end{equation}
+and $M_{VV}$ is either $M_{ZZ}$ or $M_2$ for $W$ and $Z$ bosons respectively.
+We base our calculations on of $\tilde{h}$ decay width into a pair of vector bosons on formulas from \cite{Romao}
+\begin{equation}
+\label{WidthG}
+\Gamma (\tilde{h} \rightarrow V^* V^* \rightarrow \text{leptons}) = \frac{1}{\pi} \int_{0}^{m_h^2} \, d \Delta_i^2 \frac{\Gamma_V M_V}{\vert D(\Delta_i^2)\vert^2} \frac{1}{\pi} \int_{0}^{(m_h-\sqrt{\Delta_i^2})^2} \, d \Delta_j^2 \frac{\Gamma_V M_V}{\vert D(\Delta_j^2) \vert^2} \, \Gamma_0^V (\Delta_i, \Delta_j,m_h,\theta),
+\end{equation}
+where
+\begin{eqnarray}
+\label{WidthG0}
+\begin{aligned}
+& \Gamma_0^V (\Delta_i, \Delta_j, m_h, \theta) = \delta_V \frac{G_F m_h^3}{16 \pi \sqrt{2}} \sqrt{\lambda(\Delta_i^2, \Delta_j^2, m_h^2)} \Bigl[\cos^2 \theta \Bigl(\lambda(\Delta_i, \Delta_j, m_h)+12 \frac{\Delta_i^2 \Delta_j^2}{m_h^4}\Bigr) + X(\Delta_i^2, \Delta_j^2, \theta) \Bigr ], \\
+& D(\Delta^2) = \Delta^2 - m_V^2 + \imath m_V \, \Gamma_V, \\
+& \lambda(\Delta_i^2, \Delta_j^2, m_h^2) = \Bigl(1-\frac{\Delta_i^2}{m_h^2}-\frac{\Delta_j^2}{m_h^2}\Bigr)^2 - 4 \frac{\Delta_i^2 \Delta_j^2}{m_h^4} \\
+& X(\Delta_i^2, \Delta_j^2, \theta) = \frac{\Delta_i^2 \Delta_j^2}{m_h^4} \,  \Omega \, \sin \theta (12 \cos \theta (-\Delta_i^2 - \Delta_j^2 + m_h^2)+4 \Omega \sin \theta\Bigl( \frac{(\Delta_i^2+\Delta_j^2-m_h^2)^2}{2}+\Delta_i^2 \, \Delta_j^2\Bigr)) \\
+& \Omega = \frac{M_{VV} v}{F}
+\end{aligned}
+\end{eqnarray}
+In formulas (\ref{WidthG0}) $\delta=1(2)$ for $Z(W)$ bosons and $\delta_{i,j}$ is a four-momentum of off-shell particles $V^*$. To simplify calculations we use dimensionless constants in what follows 
+\begin{equation}
+\label{etaxi}
+\xi = \frac{m_V}{m_h}, \quad \eta = \frac{\Gamma_V}{m_h}
+\end{equation}
+After this replacement the required quantity can be expressed as
+\begin{equation}
+\label{Width}
+\Gamma (\tilde{h} \rightarrow V^* V^* \rightarrow \text{leptons}) = \frac{\delta_V G_F m_h^3}{16 \pi^3 \sqrt{2}} (\Gamma_1 \cos^2 \theta -12 \, \Omega \, \Gamma_2 \sin \theta \cos \theta + 4 \, \Omega^2 \, \Gamma_3 \sin^2 \theta)
+\end{equation}
+were we used auxiliary integrals over phase space $\Gamma_1 - \Gamma_3$
+\begin{eqnarray}
+\label{Gamma13}
+\begin{aligned}
+& \Gamma_1 =  \int_{0}^{1} \, dx \frac{4 \, x \, \xi^2 \eta^2}{(x^2-\xi^2)^2+\xi^2 \eta^2} \, \int_{0}^{1-x} \, dy \frac{y (\lambda(x,y)+12 x^2 y^2)}{(y^2-\eta^2)^2+\xi^2 \eta^2} \sqrt{\lambda(x^2,y^2,1)}\\
+& \Gamma_2 =  \int_{0}^{1} \, dx \frac{4 \, x \, \eta^2}{(x^2-\xi^2)^2+\xi^2 \eta^2} \, \int_{0}^{1-x} \, dy \frac{x^2 y^3 (1-x^2-y^2)}{(y^2-\eta^2)^2+\xi^2 \eta^2} \sqrt{\lambda(x^2,y^2,1)}\\
+& \Gamma_3 =  \frac{1}{\xi^2} \int_{0}^{1} \, dx \frac{4 \, x \, \eta^2}{(x^2-\xi^2)^2+\xi^2 \eta^2} \, \int_{0}^{1-x} \, dy \frac{\Bigl(x^2 y^2 + \frac{(x^2+y^2-1)^2}{2}\Bigr)x^2 y^3}{(y^2-\eta^2)^2+\xi^2 \eta^2} \sqrt{\lambda(x^2,y^2,1)}\\
+\end{aligned}
+\end{eqnarray}
+As we noticed before, the same formulas can be obtained for $\tilde{s}$ as well, replacing $\cos \theta \rightarrow \sin \theta$ and $\sin \theta \rightarrow -\cos \theta$. 
+
+\noindent
+In our analysis we use sgoldstinos with masses in wide range from $200 \, \text{GeV}$ to $3 \, \text{TeV}$. For relatively heavy sgoldstinos with masses more than $500 \, \text{GeV}$ formulas (\ref{Gamma13}) can be heavily simplified using so-called ``delta-function approximation":
+\begin{eqnarray}
+\label{delta}
+\begin{aligned}
+& \int \, dx^2 \, \frac{1}{(x^2-\xi^2)^2+\xi^2 \eta^2} \longrightarrow \frac{\pi}{\xi \, \eta} \int \, dx^2 \, \delta(x^2-\xi^2) \\
+& \int \, dy^2 \, \frac{1}{(y^2-\xi^2)^2+\xi^2 \eta^2} \longrightarrow \frac{\pi}{\xi \, \eta} \int \, dy^2 \, \delta(y^2-\xi^2)
+\end{aligned}
+\end{eqnarray}
+After this replacement we obtain
+\begin{eqnarray}
+\label{deltaG13}
+\begin{aligned}
+& \Gamma_1 = \pi^2 (1-4 \, \xi^2 + 12 \, \xi^4) \sqrt{1-4\xi^2} \\
+& \Gamma_2 = \pi^2 \xi^2 (1-2 \, \xi^2) \sqrt{1-4\xi^2} \\
+& \Gamma_3 = \frac{\pi^2}{2} (1-4 \, \xi^2 + 6 \, \xi^4) \sqrt{1-4\xi^2}
+\end{aligned}
+\end{eqnarray}
+For a case of ``pure" sgoldstino ($\sin \theta = 1$) we get
+\begin{equation}
+\label{sWidth}
+\Gamma (\tilde{h} \rightarrow V^* V^* \rightarrow \text{leptons}) = \frac{\delta_V m_h^3 M_{VV}^2}{32 \pi F^2} \Bigl(1-\frac{4m_V^2}{m_h^2}+\frac{6m_V^4}{m_h^4} \Bigr) \sqrt{1-\frac{4m_V^2}{m_h^2}}
+\end{equation}
+which coincides with the earlier obtained result \cite{Gorbunov}.
+
+\noindent
+The effective coupling of SM Higgs boson $h$ to photons and gluons arises from loop diagrams, mainly from 1-loop diagrams with internal $W$ boson and top-quark
+\begin{equation}
+\label{Leffh}
+\mathcal{L}_{\text{eff}}^h \supset C_{\gamma \gamma} \, g_{\text{h}\gamma \gamma,\text{SM}} \, h \, F^{\mu \nu} F_{\mu \nu}
+\end{equation}
+where $C_{\gamma \gamma}$ is a scaling factor for a coupling $g_{\text{h}\gamma \gamma}$ relative to its SM value. It emerges from interaction with heavy squarks, charginos etc. This value is typically close to unity in a case of heavy superpartners. In our analysis we neglect difference between SM value of effective coupling $g_{\text{h}\gamma \gamma,\text{SM}}$ and its value in our model $g_{\text{h}\gamma \gamma}$.
+The dominant SM contribution for it reads
+\begin{equation}
+\label{loops}
+g_{\text{h}\gamma \gamma,\text{SM}}^{\text{1-loop}} = \frac{\alpha}{8\sqrt{2}\pi v} \left(A_{1}(\tau_W)+\sum_{q} N_c \, Q_q^2 \, A_{\frac{1}{2}}(\tau_q)\right)
+\end{equation}
+where $A_1$ and $A_{\frac{1}{2}}$ are contributions from $W$-boson and top-quark respectively
+\begin{eqnarray}
+\label{A1A12}
+\begin{aligned}
+& A_1(\tau) = -(2+3\tau+3\tau(2-\tau) f(\tau)) \\
+& A_{\frac{1}{2}}(\tau) = 2\tau (1+(1-\tau) f(\tau))
+\end{aligned}
+\end{eqnarray}
+and 
+\begin{eqnarray}
+\label{ftau}
+\begin{aligned}
+& f(\tau) = \left\{
+\begin{aligned}
+& \arcsin^2 \left(\frac{1}{\sqrt{\tau}}\right), & \quad \tau \geq 1 \\
+& -\frac{1}{4} \left[\log \frac{1+\sqrt{1-\tau}}{1-\sqrt{1-\tau}}-\imath \, \pi\right]^2, & \quad \tau < 1 
+\end{aligned}
+\right.  \\
+& \tau_i = \frac{4 m_i^2}{m_h^2}
+\end{aligned}
+\end{eqnarray}
+In contrast to SM Higgs boson, sgoldstino couples to photons already at the tree level
+\begin{equation}
+\label{Leffs}
+\mathcal{L}_{\text{eff}}^s \supset -\frac{M_{\gamma \gamma}}{2\sqrt{2}F} \, s \, F^{\mu \nu} F_{\mu \nu} 
+\end{equation}
+Hence, putting everything together, we obtain effective coupling of Higgs-like state $\tilde{h}$
+\begin{equation}
+\label{effcouple}
+g_{\tilde{h}\gamma \gamma} = g_{\text{h}\gamma \gamma,\text{SM}}^{\text{1-loop}} \, \cos \theta + \frac{M_{\gamma \gamma}}{2\sqrt{2}F} \, \sin \theta
+\end{equation}
+and consequently leading-order partial width of $\tilde{h}$ decaying into a pair of photons
+\begin{equation}
+\label{Ghgmgm}
+\Gamma(\tilde{h}\rightarrow \gamma \gamma) = \frac{G_F \alpha^2 m_h^3}{128\sqrt{2}\pi^3} \left\vert  \left(A_{1}(\tau_W)+\sum_{q} N_c \, Q_q^2 \, A_{\frac{1}{2}}(\tau_q)\right) \cos \, \theta + \frac{4 M_{\gamma \gamma} v \pi}{\alpha F} \sin \, \theta\right\vert^2
+\end{equation}
+
+\noindent
+The same considerations are applicable for $\Gamma(\tilde{h}\rightarrow gg)$. Modified decay of Higgs boson into two gluons reads
+\begin{equation}
+\label{Ghgg}
+\Gamma(\tilde{h}\rightarrow gg) = \frac{\alpha_s^2 \, m_h^3 \, G_F}{36\sqrt{2}\pi^3} \left \vert \sum_{Q} A_{Q}(\tau_Q) \, \cos \theta + \frac{6 M_3 \pi v}{\alpha_s \, F} \, \sin \theta \right \vert^2,
+\end{equation}
+where 
+\begin{equation}
+\label{AQ}
+A_Q(\tau) = \frac{3}{2} \tau (1+(1-\tau) f(\tau))
+\end{equation}
+with the same definition of $\tau$ and $f(\tau)$ as above.
+
+\noindent
+The couplings of Higgs-like state to SM fermions are
+\begin{eqnarray}
+\label{no26}
+\begin{aligned}
+& g_{\tilde{h} \tau \tau} = \frac{m_{\tau}}{\sqrt{2}v} \, \cos \theta - \frac{A_{\tau \tau}\,  v \, \cos \beta}{\sqrt{2}F} \, \sin \theta \\
+& g_{\tilde{h} bb} = \frac{m_b}{\sqrt{2}v} \, \cos \theta - \frac{A_{bb} \, v \, \cos \beta}{\sqrt{2}F} \, \sin \theta \\
+& g_{\tilde{h} \mu \mu} = \frac{m_{\mu}}{\sqrt{2}v} \, \cos \theta - \frac{A_{\mu \mu}\,  v \, \cos \beta}{\sqrt{2}F} \, \sin \theta \\
+\end{aligned}
+\end{eqnarray}
+The leading-order expressions for partial width of $\tilde{h}$ decaying into a pair of SM fermions
+\begin{equation}
+\label{hff}
+\Gamma(\tilde{h} \rightarrow \bar{f}f) = \frac{m_h \, g_{\tilde{h}ff}^2}{8 \pi} \left(1- \frac{4m_f^2}{m_h^2}\right)^{\frac{3}{2}}
+\end{equation}
+Since Higgs partial widths acquire sizable QCD corrections, we use explicit expressions from \cite{SpiraQCD} in our code.
+
+\noindent
+Higgs-sgoldstino mixing gives rise to the invisible decay modes of the Higgs -like state $\tilde{h}$. Namely, it's a decay to a pair of gravitino with a partial width
+\begin{equation}
+\label{GhGG}
+\Gamma(\tilde{h} \rightarrow GG) = \frac{m_h \, m_s^4}{32 \, \pi F^2} \sin^2 \theta
+\end{equation}
+The best present upper limit for branching fraction of Higgs invisible decay is 0.25 \cite{ATLAS_inv}. It turns out that this constraint is one of the most stringent in our research, especially when considering scenarios with relatively low values of $\sqrt{F}$.
+
+\begin{table}[h!]
+\begin{center}
+\begin{tabular}{|M{4cm}|M{4cm}|M{4cm}|M{4cm}|N}
+\hline
+\textbf{Decay channel} & \textbf{Production channel used in analysis} & \textbf{CMS bound on $\mu$} & \textbf{ATLAS bound on $\mu$} \\ \hline
+$\tilde{h} \rightarrow b \bar{b}$ & production in association with a vector boson (\textbf{VH}) & $0.89 \pm 0.43$ \cite{CMS_bb_1},\cite{CMS_bb_2},\cite{CMS_bb_tau} & $0.74^{+0.17}_{-0.16}$ \cite{ATLAS_bb} \\ \hline
+$\tilde{h} \rightarrow \tau \bar{\tau}$ & gluon-gluon fusion (\textbf{ggH}), vector-boson fusion (\textbf{VBF}), associated probuction (\textbf{VH}) & $0.78 \pm 0.27$ \cite{CMS_tau},\cite{CMS_bb_tau} & $1.4 \pm 0.4$ \cite{ATLAS_tau} \\ \hline
+$\tilde{h} \rightarrow WW$ & gluon-gluon fusion (\textbf{ggH}) &  $0.74^{+0.22}_{-0.20}$ \cite{CMS_WW} & $1.02^{+0.29}_{-0.26}$ \cite{ATLAS_WW} & \\[10pt] \hline
+$\tilde{h} \rightarrow ZZ$ & gluon-gluon fusion (\textbf{ggH}), vector-boson fusion (\textbf{VBF}), associated probuction (\textbf{VH}), quarks-fusion (\textbf{ttH},\textbf{bbH}) & $0.83^{+0.31}_{-0.25}$ \cite{CMS_ZZ} & $1.44^{+0.40}_{-0.33}$ \cite{ATLAS_ZZ} \\ \hline
+$\tilde{h} \rightarrow \gamma \gamma$ & gluon-gluon fusion (\textbf{ggH}) & $1.12^{+0.37}_{-0.32}$ \cite{CMS_gmgm} & $1.32 \pm 0.38$ \cite{ATLAS_gmgm} &\\[10pt] \hline
+\end{tabular}
+\caption {Constraints on signal strengths $\mu$}
+\label{tbl1}
+\end{center}
+\end{table}
+
+\noindent
+Table \ref{tbl1} shows constraints on signal strengths for different production and decay channels of Higgs boson from CMS and ATLAS experiments.  Among all possible production channels we used the most rigorous. We accept given point in parameter space (see below) if it lies inside CMS or ATLAS bounds. We accept given point in parameter space (see below) if it lies inside CMS or ATLAS bounds.
+
+\noindent
+In almost all the cases (except for $\tilde{h} \rightarrow b \bar{b}$ \cite{CMS_bb_1,CMS_bb_2,CMS_bb_tau,ATLAS_bb}) Higgs boson is mainly produced via \textbf{ggH} channel (neglecting other production mechanisms, a fairly good approximation). In this case,
+\begin{equation}
+\label{ggH}
+\frac{\sigma(pp \rightarrow \tilde{h})}{\sigma (pp \rightarrow h)_{\text{SM}}} \simeq \frac{\Gamma(\tilde{h} \rightarrow gg)}{\Gamma(h \rightarrow g)_{SM}} = \frac{\left \vert \sum_{Q} A_{Q}(\tau_Q) \, \cos \theta + \frac{6 M_3 \pi v}{\alpha_s \, F} \, \sin \theta \right \vert^2}{\left \vert \sum_{Q} A_{Q}(\tau_Q)  \right \vert^2}
+\end{equation}
+It should be noticed that both terms in brackets $\sum_{Q} A_{Q}(\tau_Q)$ and $\frac{6 M_3 \pi v}{\alpha_s \, F}$ can be in principle of comparable value. So, in a case when $M_3$ and $\sin \theta$ have different sign (for example in case of negative $\mu$ parameter and positive gluino mass $M_3$) this quantity can be close to its SM value even in a case of sizable mixing angle. This fact provides opportunities for sizable off-diagonal Yukawas $Y_{\mu \tau}$ ($Y_{\tau \mu }$) and fairly large branching of process $\tilde{h} \rightarrow \mu \tau$ (see discussion section). 
+\subsubsection{Constraints from flavour-violating in lepton sector.}
+\noindent
+As we mentioned before flavour-violating constants $Y^{\tilde{h},\tilde{s}}_{\tau \mu}$ ($Y_{\mu \tau}^{\tilde{h},\tilde{s}}$) arise already at the tree level
+\begin{eqnarray}
+\label{LFVLagr}
+\begin{aligned}
+& \mathcal{L} \supset - Y_{\mu \tau}^{\tilde{h}} \, \tilde{h} \, \bar{\mu}_L \tau_R - Y_{\tau \mu}^{\tilde{h}} \, \tilde{h} \, \bar{\tau}_L \mu_R - Y_{\mu \mu}^{\tilde{h}} \, \tilde{h} \, \bar{\mu}_L \mu_R -Y_{\tau \tau}^{\tilde{h}} \, \tilde{h} \, \bar{\tau}_L \tau_R - \\
+& - Y_{\mu \tau}^{\tilde{s}} \, \tilde{s} \, \bar{\mu}_L \tau_R - Y_{\tau \mu}^{\tilde{s}} \, \tilde{s} \, \bar{\tau}_L \mu_R - Y_{\mu \mu}^{\tilde{s}} \, \tilde{s} \, \bar{\mu}_L \mu_R -Y_{\tau \tau}^{\tilde{s}} \, \tilde{s} \, \bar{\tau}_L \tau_R  + \text{h.c.}
+\end{aligned}
+\end{eqnarray}
+Being non-zero, they can contribute to different flavour-violating processes in lepton sector, which are still not observed. Recall that we assume that all of the Yukawa couplings are real. So they cannot contribute to possible muon electric dipole moment (EDM) \cite{Harnik}. Hence if we don't consider muon magnetic moment (which descrepancy between SM and measured values still has unclear status) we are left with two possible processes which we can use in our analysis -- they are $\tau \rightarrow \mu \gamma$ and $\tau \rightarrow 3\mu$. Constraints arising from the latter process are weaker, mainly because $\Gamma(\tau \rightarrow 3 \mu)$ is suppressed by and additional $\alpha$ compared to $\Gamma(\tau \rightarrow \mu \gamma)$. Finally, we use $\tau \rightarrow \mu \gamma$ in our analysis.
+
+\noindent
+Here, for completeness we present all of the 1- and 2-loop diagrams with virtual Higgs- and sgoldstino-like states (Fig.\ref{fig:1lh} -- Fig.\ref{fig:lsusy}), but, as we will see later, not all of them are actually significant.
+
+\noindent
+The effective Lagrangian for the $\tau \rightarrow \mu \gamma$ decay is
+\begin{equation}
+\label{Lefftmg}
+\mathcal{L}_{\text{eff}} = c_L \, \frac{e}{8\pi^2} \, m_{\tau} (\bar{\mu}\, \sigma^{\alpha \beta} \, P_L \tau) \, F_{\alpha \beta} + c_R \,  \frac{e}{8\pi^2} \, m_{\tau} (\bar{\mu} \, \sigma^{\alpha \beta} \, P_R \tau) \, F_{\alpha \beta} +\text{h.c.}
+\end{equation}
+where Wilson coefficients $c_{L,R}$ acquire contributions from one-loop diagrams with sgoldstino and Higgs (Fig.\ref{fig:1lh}), Barr-Zee type 2-loop diagrams (Fig.\ref{fig:2lh}) and 1-loop diagrams with internal SUSY particles (Fig.\ref{fig:lsusy}).
+\begin{equation}
+\label{WilsonC}
+c_{L,R} = c_{L,R}^{\text{1-loop},\tilde{h}}+c_{L,R}^{\text{1-loop},\tilde{s}}+c_{L,R}^{\text{2-loop}}+c_{L,R}^{\text{SUSY}}
+\end{equation}
+The decay width thus can be given by the following expression
+\begin{equation}
+\label{tmgWidth}
+\Gamma(\tau \rightarrow \mu \gamma) = \frac{\alpha \, m_{\tau}^5}{64 \pi^4} (\vert c_L \vert^2+\vert c_R \vert^2)
+\end{equation}
+\begin{figure}[h!]
+\centering
+\begin{fmffile}{1-loop-h}
+\begin{fmfgraph*}(180,120)
+\fmfleft{i}
+\fmfright{o2}
+\fmfbottom{o1}
+\fmf{fermion,tension=2}{i,v1}
+\fmf{fermion,tension=2}{v3,o2}
+\fmf{dashes,left,label=$\tilde{h},,\tilde{s}$,tension=0.4}{v1,v3}
+\fmf{fermion,label=$\tau$,label.side=left}{v1,v2}
+\fmf{fermion,label=$\tau$,label.side=left}{v2,v3}
+\fmfdot{v1,v2,v3}
+\fmf{photon,tension=0}{v2,o1}
+
+\fmfv{label=$\tau$,label.angle=90}{i}
+\fmfv{label=$\mu$,label.angle=90}{o2}
+\fmfv{label=$\gamma$,label.angle=0}{o1}
+\fmfv{label=$Y_{\tau \tau}^{\tilde{h},,\tilde{s}} P_L+Y_{\tau \tau}^{\tilde{h},,\tilde{s}} P_R$,label.angle=-90,
+decor.shape=circle,
+decor.filled=full,decor.size=2thick}{v1}
+\fmfv{label=$Y_{\tau \mu}^{\tilde{h},,\tilde{s}} P_L+Y_{\mu \tau}^{\tilde{h},,\tilde{s}} P_R$,label.angle=-90,
+decor.shape=circle,
+decor.filled=full,decor.size=2thick}{v3}
+\end{fmfgraph*}
+\hspace{30px}
+\begin{fmfgraph*}(180,120)
+\fmfleft{i}
+\fmfright{o2}
+\fmfbottom{o1}
+\fmf{fermion,tension=2}{i,v1}
+\fmf{fermion,tension=2}{v3,o2}
+\fmf{dashes,left,label=$\tilde{h},,\tilde{s}$,tension=0.4}{v1,v3}
+\fmf{fermion,label=$\mu$,label.side=left}{v1,v2}
+\fmf{fermion,label=$\mu$,label.side=left}{v2,v3}
+\fmfdot{v1,v2,v3}
+\fmf{photon,tension=0}{v2,o1}
+
+\fmfv{label=$\tau$,label.angle=90}{i}
+\fmfv{label=$\mu$,label.angle=90}{o2}
+\fmfv{label=$\gamma$,label.angle=0}{o1}
+\fmfv{label=$Y_{\tau \mu}^{\tilde{h},,\tilde{s}} P_L+Y_{\mu \tau}^{\tilde{h},,\tilde{s}} P_R$,label.angle=-90,
+decor.shape=circle,
+decor.filled=full,decor.size=2thick}{v1}
+\fmfv{label=$Y_{\mu \mu}^{\tilde{h},,\tilde{s}} P_L+Y_{\mu u}^{\tilde{h},,\tilde{s}} P_R$,label.angle=-90,
+decor.shape=circle,
+decor.filled=full,decor.size=2thick}{v3}
+\end{fmfgraph*}
+\end{fmffile}
+\caption{1-loop diagrams with $\tilde{h}$ and $\tilde{s}$}
+\label{fig:1lh}
+\end{figure}
+
+\noindent
+The leading order terms in expansion in powers of $m_{\mu}/m_{h}$ ($m_{\mu}/m_{s}$) and $m_{\tau}/m_{h}$ ($m_{\tau}/m_{s}$) for diagrams with internal Higgs-like $\tilde{h}$ \cite{Harnik}
+\begin{eqnarray}
+\label{C1looph}
+\begin{aligned}
+& c_{L}^{\text{1-loop},\tilde{h}} \simeq \frac{1}{12 \, m_h^2} Y_{\tau \tau}^{\tilde{h}} \, Y_{\tau \mu}^{\tilde{h}} \left(-4 + 3\log \frac{m_h^2}{m_\tau^2}\right) + \frac{1}{12 \, m_h^2} Y_{\mu \mu}^{\tilde{h}} \, Y_{\tau \mu}^{\tilde{h}} \left(-4 + 3\log \frac{m_h^2}{m_\mu^2}\right) \\
+& c_{R}^{\text{1-loop},\tilde{h}} \simeq \frac{1}{12 \, m_h^2} Y_{\tau \tau}^{\tilde{h}} \, Y_{\mu \tau}^{\tilde{h}} \left(-4 + 3\log \frac{m_h^2}{m_\tau^2}\right) +  \frac{1}{12 \, m_h^2} Y_{\mu \mu}^{\tilde{h}} \, Y_{\mu \tau}^{\tilde{h}} \left(-4 + 3\log \frac{m_h^2}{m_\mu^2}\right)\\
+\end{aligned}
+\end{eqnarray}
+and sgoldstino-like $\tilde{s}$ states
+\begin{eqnarray}
+\label{C1loops}
+\begin{aligned}
+& c_{L}^{\text{1-loop},\tilde{s}} \simeq \frac{1}{12 \, m_s^2} Y_{\tau \tau}^{\tilde{s}} \, Y_{\tau \mu}^{\tilde{s}} \left(-4 + 3\log \frac{m_s^2}{m_\tau^2}\right) + \frac{1}{12 \, m_s^2} Y_{\mu \mu}^{\tilde{s}} \, Y_{\tau \mu}^{\tilde{s}} \left(-4 + 3\log \frac{m_s^2}{m_\mu^2}\right)\\
+& c_{R}^{\text{1-loop},\tilde{s}} \simeq \frac{1}{12 \, m_s^2} Y_{\tau \tau}^{\tilde{s}} \, Y_{\mu \tau}^{\tilde{s}} \left(-4 + 3\log \frac{m_s^2}{m_\tau^2}\right) + \frac{1}{12 \, m_s^2} Y_{\mu \mu}^{\tilde{s}} \, Y_{\tau \mu}^{\tilde{s}} \left(-4 + 3\log \frac{m_s^2}{m_\mu^2}\right)\\
+\end{aligned}
+\end{eqnarray}
+Now it's helpful to make several remarks about (\ref{C1looph}) and (\ref{C1loops}). In our analysis we take into account both of them but not all of terms in these expressions are actually relevant as it is apparent from expressions (\ref{C1looph}) and (\ref{C1loops}). First of all we see that, in general, contribution from the left term in (\ref{C1looph}) is suppressed compared with the right one for $Y_{\mu \mu}^{h}$ is much smaller than $Y_{\tau \tau}^{h}$ since they are mainly proportional to their SM values with a relatively small fraction coming from soft terms $A_{\mu}$ and $A_{\tau}$. On general grounds it is not obvious whether the same holds for sgoldstino diagonal couplings since conversely they are mostly proportional to soft terms and we do not assume any hierarchy between $A_{\mu}$ and $A_{\tau}$. So, in principle we should consider both of these terms in expression for sgoldstino loop. Also it should be noticed that sgoldstino and higgs contributions can be of the same magnitude. This happens because, on the one hand the higgs contribution is enhanced by a factor of $\sim \left(m_s/m_h\right)^2$ but on the other hand it is suppressed by a relatively small value of non-diagonal coupling $Y_{\mu \tau}^{\tilde{h}}$ ($Y_{\mu \tau}^{\tilde{h}}$). In a case of light sgoldstinos or comparatively large mixing angles sgoldstino contribution is even dominates.
+\begin{figure}[h]
+\centering
+\vspace{20px}
+\begin{fmffile}{2-loop-01}
+\begin{fmfgraph*}(180,120)
+\fmfleft{i}
+\fmfright{o2}
+\fmftop{i,d1,o2}
+\fmfbottom{o1}
+\fmf{fermion}{i,v1}
+\fmf{fermion,label=$\mu$,label.side=right}{v1,v2}
+\fmf{fermion}{v2,o2}
+\fmffreeze
+\fmf{photon,tension=0.6,label= $Z,, \gamma$}{v2,v3}
+\fmf{dashes,tension=0.6,label=$\tilde{h},,\tilde{s}$}{v1,v4}
+\fmf{fermion,tension=0,label=$t$,label.side=right}{v4,v3}
+\fmf{fermion,tension=0.4,label=$t$,label.side=left}{v3,v5}
+\fmf{fermion,tension=0.4,label=$t$,label.side=left}{v5,v4}
+\fmf{photon}{v5,o1}
+\fmfv{label=$\tau$,label.angle=90}{i}
+\fmfv{label=$\mu$,label.angle=90}{o2}
+\fmfv{label=$\gamma$,label.angle=0}{o1}
+\fmfv{label=$Y_{\tau \mu}^{\tilde{h},,\tilde{s}} P_L+Y_{\mu \tau}^{\tilde{h},,\tilde{s}} P_R$,label.angle=90,
+decor.shape=circle,
+decor.filled=full,decor.size=2thick}{v1}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v2}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v3}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v4}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v5}
+\end{fmfgraph*}
+\hspace{30px}
+\begin{fmfgraph*}(180,120)
+\fmfleft{i}
+\fmfright{o2}
+\fmftop{i,d1,o2}
+\fmfbottom{o1}
+\fmf{fermion}{i,v1}
+\fmf{fermion,label=$\mu$,label.side=right}{v1,v2}
+\fmf{fermion}{v2,o2}
+\fmffreeze
+\fmf{photon,tension=0.6,label= $Z,, \gamma$}{v2,v3}
+\fmf{dashes,tension=0.6,label=$\tilde{h},,\tilde{s}$}{v1,v4}
+\fmf{photon,tension=0,label=$W$,label.side=right}{v4,v3}
+\fmf{photon,tension=0.4,label=$W$,label.side=left}{v3,v5}
+\fmf{photon,tension=0.4,label=$W$,label.side=left}{v5,v4}
+\fmf{photon}{v5,o1}
+\fmfv{label=$\tau$,label.angle=90}{i}
+\fmfv{label=$\mu$,label.angle=90}{o2}
+\fmfv{label=$\gamma$,label.angle=0}{o1}
+\fmfv{label=$Y_{\tau \mu}^{\tilde{h},,\tilde{s}} P_L+Y_{\mu \tau}^{\tilde{h},,\tilde{s}} P_R$,label.angle=90,
+decor.shape=circle,
+decor.filled=full,decor.size=2thick}{v1}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v2}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v3}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v4}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v5}
+\end{fmfgraph*}
+\end{fmffile}
+\vspace{30px}
+
+\begin{fmffile}{2-loop-02}
+\begin{fmfgraph*}(180,120)
+\fmfleft{i}
+\fmfright{o2}
+\fmftop{i,d1,o2}
+\fmfbottom{o1}
+\fmf{fermion}{i,v1}
+\fmf{fermion,label=$\mu$,label.side=right}{v1,v2}
+\fmf{fermion}{v2,o2}
+\fmffreeze
+\fmf{photon,tension=0.6,label= $Z,, \gamma$,label.side=left}{v2,v3}
+\fmf{dashes,tension=0.9,label=$\tilde{h},,\tilde{s}$,label.side=right,label.dist=0.1}{v1,v4}
+\fmf{photon,tension=0,label=$W$,label.side=left,label.dist=0.01}{v4,v3}
+\fmf{photon,right=1.6,label=$W$}{v4,v3}
+\fmf{photon}{v3,o1}
+\fmfv{label=$\tau$,label.angle=90}{i}
+\fmfv{label=$\mu$,label.angle=90}{o2}
+\fmfv{label=$\gamma$,label.angle=0}{o1}
+\fmfv{label=$Y_{\tau \mu}^{\tilde{h},,\tilde{s}} P_L+Y_{\mu \tau}^{\tilde{h},,\tilde{s}} P_R$,label.angle=90,
+decor.shape=circle,
+decor.filled=full,decor.size=2thick}{v1}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v2}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v3}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v4}
+\end{fmfgraph*}
+\hspace{20px}
+\begin{fmfgraph*}(180,120)
+\fmfleft{i}
+\fmfright{o2}
+\fmftop{d1}
+\fmfbottom{o1}
+\fmf{fermion}{i,v1}
+\fmf{fermion,label=$\mu$,label.side=left}{v1,v2}
+\fmf{fermion,label=$\mu$,label.side=left}{v2,v3}
+\fmf{fermion,label=$\mu$,label.side=left}{v3,v4}
+\fmf{fermion,tension=1.3}{v4,o2}
+\fmffreeze
+\fmf{dashes,left=0.7,label=$\tilde{h},,\tilde{s}$}{v1,d1}
+\fmf{photon,left=0.35,label=$Z$,tension=0.4}{v2,d1}
+\fmf{photon,left=0.6,label=$Z$,tension=0.4}{d1,v4}
+\fmf{photon,tension=0}{v3,o1}
+\fmfv{label=$\tau$,label.angle=90}{i}
+\fmfv{label=$\mu$,label.angle=90}{o2}
+\fmfv{label=$\gamma$,label.angle=0}{o1}
+\fmfv{label=$\scriptstyle Y_{\tau \mu}^{\tilde{h},,\tilde{s}} P_L+Y_{\mu \tau}^{\tilde{h},,\tilde{s}} P_R$,label.angle=-90,
+decor.shape=circle,
+decor.filled=full,decor.size=2thick}{v1}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v2}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v3}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{v4}
+\fmfv{decor.shape=circle,decor.filled=full,decor.size=2thick}{d1}
+\end{fmfgraph*}
+\end{fmffile}
+\caption{Barr-Zee type 2-loop diagrams}
+\label{fig:2lh}
+\end{figure}
+
+\noindent
+Now let us focus on 2-loop diagrams which contribute to process under consideration. In this case expressions for loop factors are much more complex than in 1-loop case, so it is useful to decide which diagrams are negligible and should not be take into account. First of all let us verify that sgoldstino loops are extremely suppressed compared to same loops but with virtual higgs. 
+
+\noindent
+Sgoldstino-gauge vertex is proportional to $\sim p^2 \, M_{v}/F$, where $p^2$ is a square of some characteristic 4-momentum running in a loop. Since all of the loop integrals are convergent, large values of	 momenta are suppressed. So, the typical value of $p^2$ is around $m_{\tau}$. Hence the whole expression is suppressed by a factor of $\sim m_{\tau}^2 \, M_{v}/F$. Further, contributions from diagrams with an internal $Z$ are suppressed by a factor of $1-4 \, s_{W}^2 \approx 0.08$ compared to diagrams with internal $\gamma$. So, we also don't take them into account. Finally we are left with contributions from upper and left bottom diagrams on Fig.\ref{fig:2lh}. There contribution to Wilson coefficients $c_{L,R}$ can be written as  
+\begin{equation}
+\label{C2loop}
+c_{L,R}^{\text{2-loop}} = c_{L,R}^{t \, \gamma} + c_{L,R}^{W \, \gamma}
+\end{equation}
+where \cite{Harnik}
+\begin{eqnarray}
+\label{C2looptg}
+\begin{aligned}
+& c_{L}^{t \, \gamma} = -\frac{4 \, \alpha \, G_{\scriptstyle F} \, v}{3 m_{\tau} \pi} \, Y_{\tau \mu} f(z_{th}) \\
+& c_{L}^{W \, \gamma} = \frac{\alpha G_F v}{2 m_{\tau} \pi} Y_{\tau \mu} \left [3f(z_{Wh})+5g(z_{Wh})+\frac{3}{4}g(z_{Wh})+\frac{3}{4}h(z_{Wh})+\frac{f(z_{Wh})-g(z_{Wh})}{2z_{Wh}}\right]
+\end{aligned}
+\end{eqnarray}
+The loop functions $f(z),g(z)$ and $h(z)$ are
+\begin{eqnarray}
+\label{fgh}
+\begin{aligned}
+& f(z) = \frac{z}{2} \, \int_{0}^{1} \, dx \frac{1-2x(1-x)}{x(1-x)-z} \, \log \frac{x(1-x)}{z} \\
+& g(z) = \frac{z}{2} \, \int_{0}^{1} \, dx \frac{1}{x(1-x)-z} \, \log \frac{x(1-x)}{z} \\
+& h(z) = \frac{z}{2} \, \int_{0}^{1} \, \frac{dx}{x(1-x)-z} \left[1+\frac{z}{z-x(1-x)} \, \log \frac{x(1-x)}{z}\right] \\
+\end{aligned}
+\end{eqnarray}
+The same expressions for $c_{R}^{W \, \gamma}$ and $c_{R}^{t \, \gamma}$ can be obtained by replacement $Y_{\tau \mu} \rightarrow Y_{\mu \tau}$.
+
+
+\begin{figure}[h]
+\centering
+\vspace{20px}
+\begin{fmffile}{loop-susy}
+\begin{fmfgraph*}(180,120)
+\fmfleft{i}
+\fmfright{o1,o2}
+\fmf{fermion}{i,v}
+\fmf{fermion}{v,o2}
+\fmf{photon}{v,o1}
+\fmfblob{.15w}{v}
+\fmfv{label=$\tau$,label.angle=90}{i}
+\fmfv{label=$\mu$,label.angle=90}{o2}
+\fmfv{label=$\gamma$,label.angle=0}{o1}
+\end{fmfgraph*}
+\caption{1-loop diagrams with neutralinos, charginos and sleptons (inside the blob)}
+\label{fig:lsusy}
+\end{fmffile}
+\end{figure}
+
+\noindent
+Now let us discuss contribution from loop diagrams with virtual charginos and neutralinos. As we will see now, $\tilde{A}_{ab}$ take off-diagonal places in slepton mass matrix in electroweak interaction basis. So, if some of these parameters are non-zero, it will reflect the misalignment between lepton and slepton mass matrices in flavor basis. This gives rise to lepton flavor violating processes in slepton sector that can be than transmitted to lepton sector via loop diagrams.
+
+\noindent
+The non-diagonal $6 \times 6$ slepton squared mass matrix in electroweak interaction basis ($\tilde{e}_L, \, \tilde{\mu}_L, \, \tilde{\tau}_L, \, \tilde{e}_R, \, \tilde{\mu}_R, \, \tilde{\tau}_R$) can be written in terms of 3 non-diagonal $3 \times 3$ matrices \cite{Heinemeyer} \footnote{For clarity we replace names of generation with their numbers $\text{e} \rightarrow 1, \, \mu \rightarrow 2, \, \tau \rightarrow 3$.}
+\begin{equation}
+\label{no17}
+M_{\tilde{l}}^2 = 
+\left(
+\begin{matrix}
+M_{\tilde{l}LL}^2 & M_{\tilde{l}LR}^2 \\
+M_{\tilde{l}RL}^{2 \dagger} & M_{\tilde{l}RR}^2 \\
+\end{matrix}
+\right),
+\end{equation}
+where
+\begin{eqnarray}
+\label{no18}
+\begin{aligned}
+& M_{\tilde{l}LL ij}^2 = m_{\tilde{L}ij}^2 + \Bigl(m_{l_i}^2 + \Bigl(\sin^2 \theta_{W} - \frac{1}{2}\Bigr)M_Z^2 \, \cos 2 \beta \Bigr) \, \delta_{ij}  \\
+& M_{\tilde{l}RR ij}^2 = m_{\tilde{E}ij}^2 + (m_{l_i}^2 - \sin^2 \theta_{W} \, M_Z^2 \, \cos 2 \beta) \, \delta_{ij} \\
+& M_{\tilde{l}LR ij}^2 = v_1 \, \tilde{A}_{ij} - m_{l_i} \,\mu \, \tan \beta \, \delta_{ij}
+\end{aligned}
+\end{eqnarray}
+The $m_{\tilde{L}}$, $m_{\tilde{E}}$, $\tilde{A}$ matrices can be parametrized as
+\begin{eqnarray}
+\label{no19}
+\begin{aligned}
+& m_{\tilde{L}}^2 = \left(
+\begin{matrix}
+m_{\tilde{L}_1}^2 & \delta_{12}^{LL} \, m_{\tilde{L}_1} m_{\tilde{L}_2} & \delta_{13}^{LL} \, m_{\tilde{L}_1} m_{\tilde{L}_3} \\
+\delta_{21}^{LL} m_{\tilde{L}_2} m_{\tilde{L}_1} & m_{\tilde{L}_2}^2 & \delta_{23}^{LL} \, m_{\tilde{L}_2} m_{\tilde{L}_3} \\
+\delta_{31}^{LL} m_{\tilde{L}_3} m_{\tilde{L}_1} & \delta_{32}^{LL} \, m_{\tilde{L}_3} m_{\tilde{L}_2} & m_{\tilde{L}_3}^2 \\
+\end{matrix}
+\right)
+\\
+\\
+& v_1 \, \tilde{A} = \left(
+\begin{matrix}
+m_e \, \tilde{A}_e & \delta_{12}^{LR} \, m_{\tilde{L}_1} m_{\tilde{E}_2} & \delta_{13}^{LR} \, m_{\tilde{L}_1} m_{\tilde{E}_3} \\
+\delta_{21}^{LR} m_{\tilde{L}_2} m_{\tilde{E}_1} & m_{\mu} \, \tilde{A}_{\mu} & \delta_{23}^{LR} \, m_{\tilde{L}_2} m_{\tilde{E}_3} \\
+\delta_{31}^{LR} m_{\tilde{L}_3} m_{\tilde{E}_1} & \delta_{32}^{LR} \, m_{\tilde{L}_3} m_{\tilde{E}_2} & m_{\tau} \, \tilde{A}_{\tau} \\
+\end{matrix}
+\right)
+\\
+\\
+& m_{\tilde{E}}^2 = \left(
+\begin{matrix}
+m_{\tilde{E}_1}^2 & \delta_{12}^{RR} \, m_{\tilde{E}_1} m_{\tilde{E}_2} & \delta_{13}^{RR} \, m_{\tilde{E}_1} m_{\tilde{E}_3} \\
+\delta_{21}^{RR} m_{\tilde{E}_2} m_{\tilde{E}_1} & m_{\tilde{E}_2}^2 & \delta_{23}^{RR} \, m_{\tilde{E}_2} m_{\tilde{E}_3} \\
+\delta_{31}^{RR} m_{\tilde{E}_3} m_{\tilde{E}_1} & \delta_{32}^{RR} \, m_{\tilde{E}_3} m_{\tilde{E}_2} & m_{\tilde{E}_3}^2 \\
+\end{matrix}
+\right)
+\end{aligned}
+\end{eqnarray}
+Contributions from SUSY particles in Mass Insertion Approximation (MIA) read \cite{Heinemeyer,Paradisi}
+\begin{eqnarray}
+\label{1loopsusy}
+\begin{aligned}
+& c_{L}^{\text{SUSY}}= \frac{5\pi}{3} \frac{\alpha_2}{c_{\text{w}}^2} v \,  A_{\tau \mu} \, \cos \beta \, \frac{M_1}{m_{\tau}} \frac{1}{m_{\tilde{R}}^2-m_{\tilde{L}}^2} \left(\frac{f_{3n}(a_L)}{m_{\tilde{L}}^2}-\frac{f_{3n}(a_R)}{m_{\tilde{R}}^2}\right) + \scriptstyle(\text{``LL contribution"}) \\
+& c_{R}^{\text{SUSY}}= \frac{5\pi}{3} \frac{\alpha_2}{c_{\text{w}}^2} v \,  A_{\mu \tau} \, \cos \beta \, \frac{M_1}{m_{\tau}} \frac{1}{m_{\tilde{R}}^2-m_{\tilde{L}}^2} \left(\frac{f_{3n}(a_L)}{m_{\tilde{L}}^2}-\frac{f_{3n}(a_R)}{m_{\tilde{R}}^2}\right) + \scriptstyle(\text{``RR contribution"})
+\end{aligned}
+\end{eqnarray}
+In this expression $m_{\tilde{L}}$ and $m_{\tilde{R}}$ are the average slepton masses in ``left" and ``right" sectors respectively, $a_{\scriptstyle L,R} = \displaystyle \frac{M_1^2}{m_{\tilde{L},\tilde{R}}^2}$ and $f_{3n}$ is a loop function from neutralino contribution \cite{Heinemeyer,Paradisi}
+\begin{equation}
+\label{f3n}
+f_{3n}(a) = \frac{1+2a \, \log a-a^2}{2(1-a)^3}
+\end{equation}
+Here we make two simplifying assumptions. First of all, we ignore flavor mixing coming from $\delta^{LL}$ and $\delta^{RR}$ for the following reason. On the one hand, considering these sectors leads to increase of number of input MSSM parameters and significant complication of the total analysis. On the other hand, taking into account these parameters may lead to some cancellation in expressions for $c_{L,R}^{\text{SUSY}}$ making bound for $\text{BR}(\tau \rightarrow \mu \gamma)$ less constraining (see \cite{Heinemeyer} for illustrative examples). Also, to reduce the number of input MSSM parameters we'll assume that masses of "right-handed" and "left-handed" sleptons are equal (and equal to some "slepton mass scale"). 
+\[
+m_{\tilde{L}_i} = m_{\tilde{E}_i} \equiv m_{\text{sl}}
+\]
+In this limit ($m_{\tilde{L}}^2 - m_{\tilde{R}}^2 \rightarrow 0$) expression reduces to
+\begin{equation}
+\label{expres}
+\frac{1}{m_{\tilde{R}}^2-m_{\tilde{L}}^2} \left(\frac{f_{3n}(a_L)}{m_{\tilde{L}}^2}-\frac{f_{3n}(a_R)}{m_{\tilde{R}}^2}\right) \longrightarrow \frac{2 f_{2n}(a)}{m_{\text{sl}}^4}
+\end{equation}
+where $f_{2n}(a)$ is another neutralino loop function \cite{Heinemeyer}
+\begin{equation}
+\label{f2n}
+f_{2n}(a) = \frac{-5a^2+4a+1+2a(a+2)\log a}{4(1-a)^4}
+\end{equation}
+As we mentioned before, so far, flavour-violating decay of $\tau$ lepton was not observed. The present $90\%$ C.L. bounds on its branching fraction is \cite{BABAR}
+\begin{equation}
+\label{BRbound}
+\text{BR}(\tau \rightarrow \mu \gamma) < 4.4 \times 10^{-8}
+\end{equation}
+In our analysis we calculate this branching ratio using formulas (\ref{tmgWidth}),(\ref{C1looph}),(\ref{C1loops}),(\ref{C2looptg}),(\ref{1loopsusy}) and compare with bound (\ref{BRbound}). It should be recalled that the expected sensitivity of Belle-II experiment will be about $\sim 10^{-9}$ \cite{BelleII}. So prediction of this branching fraction following from our model seems to be interesting.
+
+\noindent
+Another constraint comes from considering slepton mass matrix (\ref{no17}). Eigenvalues of it are squares of slepton masses. It may happen that the smallest eigenvalue is less than the present limit of $325 \, \text{GeV}$ \cite{ATLAS_slepton} or even negative. In our analysis we also calculate spectrum of this matrix and check whether the constraint on the smallest eigenvalue is fulfilled.
+\subsubsection{Direct searches of sgoldstino}
+Due to coupling to gluons, sgoldstino-like states can be resonantly produced at hadron colliders via gluon-gluon fusion. The leading order production cross section can be written in the form \cite{Bellazzini}
+\begin{equation}
+\label{no27}
+\sigma_{\tilde{s}} = \frac{\pi^2}{8} \frac{\Gamma(\tilde{s}\rightarrow gg)}{s m_{\tilde{s}}} \int_{m_{\tilde{s}}^2/s}^{1} \frac{dx}{x} \, f_{p/g}(x,m_{\tilde{s}^2}) \, f_{p,\bar{p}/g}\left(\frac{m_{\tilde{s}}^2}{xs},m_{\tilde{s}}^2\right),
+\end{equation}
+where $\Gamma(\tilde{s}\rightarrow gg)$ is a partial width of sgoldstino-like state decaying into two gluons, $s$ is a center of mass energy squared and $f_{p/g}(x,Q^2)$ are the parton distribution functions defined at scale $Q^2$. The most constraining bound comes from direct searches in the di-photon final state. Searches for resonances in the di-photon final state are usually performed in the framework of extra dimensions and are restricted to spin-2 resonances \cite{Bellazzini},\cite{ATLAS_dph_h},\cite{ATLAS_dph_l},\cite{CMS_dph}. A priori we do not know how to use these results to set bounds in our model. The simplest thing to do is to assume these quantities to be the same for spin-2 and scalar particles. So, in our analysis we calculate quantity $\sigma_{\tilde{s}} \times \text{BR}(\tilde{s} \rightarrow \gamma \gamma)$ using \texttt{CTEQ6L} parton distribution functions and compare it with experimental bound for heavy  ($520 \, \text{GeV} < m_{\tilde{s}} < 2900 \, \text{GeV}$) \cite{ATLAS_dph_h} and light ($210 \, \text{GeV} < m_{\tilde{s}} < 500 \, \text{GeV}$) \cite{ATLAS_dph_l},\cite{CMS_dph} sgoldstinos.
+
+\subsection{Analysis strategy}
+In our analysis we focus mainly on mixing between $2^{\text{nd}}$ and $3^{\text{rd}}$ generation of leptons but it can be easily applicable to mixing between the $1^{\text{st}}$ -- $2^{\text{nd}}$ and $1^{\text{st}}$ -- $3^{\text{rd}}$.
+\begin{table}[h!]
+\begin{center}
+%\begin{tabular}{|l|l|}
+\begin{tabular}{|M{1cm}|M{4cm}|N}
+\hline
+$\tan \, \beta$ & 1.5 \ldots 50.5 & \\[4pt] \hline
+$\mu$ & 100 \ldots 2000 $\text{GeV}$ & \\[4pt] \hline
+$\tilde{A}_{\tau}$ & 0.1 $\sqrt{F}$ $\ldots$ $\sqrt{F}$ & \\[4pt] \hline
+$\tilde{A}_{\mu}$ & 0.1 $\sqrt{F}$ $\ldots$ $\sqrt{F}$ & \\[4pt] \hline
+$\tilde{A}_{\mu \tau}$ & 0.1 $\sqrt{F}$ $\ldots$ $\sqrt{F}$ & \\[4pt] \hline
+$\tilde{A}_{\tau \mu}$ & 0.1 $\sqrt{F}$ $\ldots$ $\sqrt{F}$ & \\[4pt] \hline
+$M_1$ & 100 $ \ldots \sqrt{F} \, \text{GeV}$ & \\[4pt] \hline
+$M_2$ & 200 $ \ldots \sqrt{F}\, \text{GeV}$ & \\[4pt] \hline
+$M_3$ & 1.5  $\ldots\text{min}\{ 4.0,\sqrt{F}\} \, \text{TeV}$ & \\[4pt] \hline
+$\tilde{m}_{sl}$ & 300 $\ldots \sqrt{F}\, \text{GeV}$ & \\[4pt] \hline
+$m_s$ &  $200 \ldots 3000 \, \text{GeV}$ & \\[4pt] \hline 
+\end{tabular}
+\end{center}
+\caption{Parameter space}
+\label{tbl2}
+\end{table}
+We fix c.o.m. energy to be $\sqrt{s} = 8 \, \text{TeV}$, Higgs-like state mass to be $m_{\tilde{h}}=125.0 \, \text{GeV}$, SUSY breaking parameter $\sqrt{F}$ and scan randomly over the parameter space. For each point in this space we calculate Higgs-sgoldstino mixing angle $\theta$, signal strengths and check all the constraints we mentioned above. Actually this is the same parameter space as in \cite{DemAst}. As in this paper we assume that other soft SUSY masses that are not important in our analysis are taken to be sufficiently large.
+\subsection{Results and discussion}
+\clearpage
+\begin{thebibliography}{00}
+\bibitem{Martin} S. P. Martin, A supersymmetry primer \href{http://arxiv.org/abs/hep-ph/9709356}{[arXiv: 9709356 [hep-ph]]} .
+\bibitem{Harnik} Harnik, Roni et al., Flavor Violating Higgs Decays, JHEP 1303 (2013) 026 \href{http://arxiv.org/abs/1209.1397}{[arXiv:1209.1397 [hep-ph]]}
+\bibitem{Kopp} Kopp, Joachim et al., Flavor and CP violation in Higgs decays, JHEP 1410 (2014) 156 \href{http://arxiv.org/abs/1406.5303}{[arXiv:1406.5303 [hep-ph]]}
+\bibitem{Dorsner} Dorsner, Ilja et al., New Physics Models Facing Lepton Flavor Violating Higgs Decays at the Percent Level, JHEP 1506 (2015) 108 [arXiv:1502.07784 [hep-ph]]
+\bibitem{Heinemeyer} M. Arana-Catania, S. Heinemeyer and M.J. Herrero, New Constraints on General Slepton Flavor Mixing, Phys.Rev. D88 (2013) 1, 015026 \href{http://arxiv.org/abs/1304.2783}{[arXiv:1304.2783 [hep-ph]]}
+\bibitem{Paradisi} P. Paradisi, Constraints on SUSY lepton flavor violation by rare processes, JHEP 0510, 006 (2005) \href{http://arxiv.org/abs/hep-ph/0505046}{[arXiv:0505046 [hep-ph]]}
+\bibitem{Bellazzini} B.Bellazzini, C.Petersson, and R.Torre, Photophilic Higgs from sgoldstino mixing, Phys.Rev. D86 (2012) 033016 \href{http://arxiv.org/abs/1207.0803}{[arXiv:1207.0803 [hep-ph]]}
+\bibitem{SpiraQCD} M. Spira, QCD effects in Higgs physics, 1998 Fortsch.Phys. 46 (1998) 203-284 \href{http://arxiv.org/abs/hep-ph/9705337}{[arXiv:9705337 [hep-ph]]}
+\bibitem{Romao} J. C. Romao and S. Andringa, Vector boson decays of the Higgs boson, Eur. Phys. J. C 7 (1999) 631 \href{http://arxiv.org/abs/hep-ph/9807536}{[arXiv:9807536 [hep-ph]]}
+\bibitem{DemAst} K.O. Astapov, S.V. Demidov, Sgoldstino-Higgs mixing in models with low-scale supersymmetry breaking, JHEP 1501 (2015) 136 \href{http://arxiv.org/abs/1411.6222}{[arXiv:1411.6222 [hep-ph]]}
+\bibitem{Gorbunov} D. S. Gorbunov and N. V. Krasnikov, Prospects for sgoldstino search at the LHC JHEP 0207 (2002) 043 \href{http://arxiv.org/abs/hep-ph/0203078}{[arXiv:0203078 [hep-ph]]}
+%% Experimental data
+%% ATLAS
+\bibitem{ATLAS_dph_h} G. Aad et al. [ATLAS Collaboration], Phys.Rev. D92 (2015) 3, 032004 \href{http://arxiv.org/abs/1504.05511}{[arXiv:1504.05511 [hep-ex]]}
+\bibitem{ATLAS_dph_l} G. Aad et al. [ATLAS Collaboration], Phys. Rev. Lett. 113 (2014) 171801 \href{http://arxiv.org/abs/1407.6583}{[arXiv:1407.6583 [hep-ex]]}
+\bibitem{ATLAS_gmgm} G. Aad et al. [ATLAS Collaboration], Phys. Rev. D90 (2014) 11, 112015 \href{http://arxiv.org/abs/1408.7084}{[arXiv:1408.7084 [hep-ex]]}
+\bibitem{ATLAS_bb} G. Aad et al. [ATLAS Collaboration], JHEP 1501 (2015) 069 \href{http://arxiv.org/abs/1409.6212}{[arXiv:1409.6212 [hep-ex]]}
+\bibitem{ATLAS_tau} G. Aad et al. [ATLAS Collaboration], JHEP 1504 (2015) 117 \href{http://arxiv.org/abs/1501.04943}{[arXiv:1501.04943 [hep-ex]]}
+\bibitem{ATLAS_WW} G. Aad et al. [ATLAS Collaboration], Phys.Rev. D92 (2015) 1, 012006 \href{http://arxiv.org/abs/1412.2641}{[arXiv:1412.2641 [hep-ex]]}
+\bibitem{ATLAS_ZZ} G. Aad et al. [ATLAS Collaboration], Phys.Rev. D91 (2015) 1, 012006 \href{http://arxiv.org/abs/1408.5191}{[arXiv:1408.5191 [hep-ex]]}
+\bibitem{ATLAS_slepton} G. Aad et al. [ATLAS Collaboration], JHEP 1405 (2014) 071 \href{http://arxiv.org/abs/1403.5294}{[arXiv:1403.5294 [hep-ex]]}
+\bibitem{ATLAS_inv} G. Aad et al. [ATLAS Collaboration], CERN-PH-EP-2015-191 \href{http://arxiv.org/abs/1509.00672}{[arXiv:1509.00672 [hep-ex]]}
+\bibitem{ATLAS_LFV} G. Aad et al. [ATLAS Collaboration], CERN-PH-EP-2015-184 \href{http://arxiv.org/abs/1508.03372}{[arXiv:1508.03372 [hep-ex]]}
+%% CMS
+\bibitem{CMS_gmgm} V. Khachatryan et al. [CMS Collaboration], Eur. Phys. J. C 74 (2014) 10, 3076 \href{http://arxiv.org/abs/1407.0558}{[arXiv:1407.0558 [hep-ex]]}
+\bibitem{CMS_bb_1} V. Khachatryan et al. [CMS Collaboration], Phys.Rev. D89 (2014) 1, 012003 \href{http://arxiv.org/abs/1310.3687}{[arXiv:1310.3687 [hep-ex]]}
+\bibitem{CMS_bb_2} V. Khachatryan et al. [CMS Collaboration], Phys.Rev. D92 (2015) 3, 032008 \href{http://arxiv.org/abs/1506.01010}{[arXiv:1506.01010 [hep-ex]]}
+\bibitem{CMS_bb_tau} V. Khachatryan et al. [CMS Collaboration], Nature Phys. 10 (2014) 557-560 \href{http://arxiv.org/abs/1401.6527}{[arXiv:1401.6527 [hep-ex]]}
+\bibitem{CMS_tau} V. Khachatryan et al. [CMS Collaboration], JHEP 1405 (2014) 104 \href{http://arxiv.org/abs/1401.5041}{[arXiv:1401.5041 [hep-ex]]}
+\bibitem{CMS_WW} V. Khachatryan et al. [CMS Collaboration], JHEP 1401 (2014) 096 \href{http://arxiv.org/abs/1312.1129}{[arXiv:1312.1129 [hep-ex]]}
+\bibitem{CMS_ZZ} V. Khachatryan et al. [CMS Collaboration], Phys.Rev. D89 (2014) 9, 092007 \href{http://arxiv.org/abs/1312.5353}{[arXiv:1312.5353 [hep-ex]]}
+\bibitem{CMS_LFV} V. Khachatryan et al. [CMS Collaboration], Phys.Lett. B749 (2015) 337-362 \href{http://arxiv.org/abs/1502.07400}{[arXiv:1502.07400 [hep-ex]]}
+\bibitem{CMS_dph} V. Khachatryan et al. [CMS Collaboration], Phys.Lett. B750 (2015) 494-519 \href{http://arxiv.org/abs/1506.02301}{[arXiv:1506.02301 [hep-ex]]}
+%% BABAR
+\bibitem{BABAR} B. Aubert et al. [BABAR Collaboration], Phys. Rev. Lett. 104, 021802 (2010) \href{http://arxiv.org/abs/0908.2381}{[arXiv:0908.2381 [hep-ex]]}
+\bibitem{BelleII} T. Aushev, W. Bartel, A. Bondar, J. Brodzicka, T. E. Browder, P. Chang, Y. Chao and K. F. Chen et al., \href{http://arxiv.org/abs/1002.5012}{[arXiv:1002.5012 [hep-ex]]}
+\end{thebibliography}
+\end{document}
